@@ -1,0 +1,33 @@
+apiVersion: v2
+name: python-dev-environment
+description: A secure, non-root Python development environment for VS Code, designed for Talos Linux Kubernetes clusters and deployed via ArgoCD.
+type: application
+version: 1.0.0
+appVersion: "3.12"
+
+keywords:
+  - python
+  - development
+  - devcontainer
+  - vscode
+  - talos
+  - argocd
+
+home: https://github.com/bryanjbelanger/python-dev-environment.git
+
+sources:
+  - https://github.com/bryanjbelanger/python-dev-environment.git
+
+maintainers:
+  - name: Bryan Belanger
+    email: bryanbelanger@hotmail.com
+    url: https://github.com/bryanjbelanger
+
+annotations:
+  # ArgoCD recommended annotations
+  argocd.argoproj.io/sync-wave: "0"
+  artifacthub.io/changes: |
+    - kind: added
+      description: Initial chart release for Python development environment
+  artifacthub.io/containsSecurityUpdates: "false"
+  artifacthub.io/category: "development-tools"

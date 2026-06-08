@@ -1,0 +1,197 @@
+# -- Number of replicas to run
+replicaCount: 1
+
+# -- Image configuration
+image:
+  repository: mcr.microsoft.com/devcontainers/python
+  tag: "3.12"
+  pullPolicy: IfNotPresent
+
+# -- Name overrides for Kubernetes resources
+nameOverride: ""
+fullnameOverride: ""
+
+# -- ServiceAccount configuration
+serviceAccount:
+  create: true
+  name: ""
+  annotations: {}
+  # -- IAM role ARN for AWS EKS IRSA, if applicable
+  # eks.amazonaws.com/role-arn: arn:aws:iam::123456789012:role/my-role
+
+# -- PVC-backed workspace storage
+storage:
+  size: 5Gi
+  accessMode: ReadWriteOnce
+  # -- Uncomment and set if a specific StorageClass is required (e.g., "gp3", "ebs-sc")
+  # storageClassName: ""
+
+# -- Resource requests and limits
+resources:
+  limits:
+    cpu: "2"
+    memory: 2Gi
+  requests:
+    cpu: "500m"
+    memory: 512Mi
+
+# -- Pod-level security context
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+  # -- Additional Linux capabilities to add or drop
+  # capabilities:
+  #   drop:
+  #   - ALL
+
+# -- Container-level security context
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+    - ALL
+  privileged: false
+  readOnlyRootFilesystem: false
+
+# -- Service configuration for accessing the development environment
+service:
+  enabled: true
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+  annotations: {}
+  # -- If using headless service for StatefulSet-like behavior
+  # clusterIP: None
+
+# -- Ingress configuration (disabled by default)
+ingress:
+  enabled: false
+  className: ""
+  annotations:
+    # -- Common ingress annotations for Talos/Traefik
+    # traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    # cert-manager.io/cluster-issuer: letsencrypt-prod
+  hosts:
+    - host: python-dev.home
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: python-dev-tls
+      hosts:
+        - python-dev.home
+
+# -- Probes configuration
+# These defaults are tuned for a long-running dev container.
+# Since the container runs `tail -f /dev/null` (no dynamic service),
+# probes are purely for liveness detection with minimal overhead.
+probes:
+  liveness:
+    enabled: true
+    initialDelaySeconds: 30
+    periodSeconds: 30
+    timeoutSeconds: 5
+    failureThreshold: 3
+    successThreshold: 1
+  readiness:
+    enabled: false
+    initialDelaySeconds: 5
+    periodSeconds: 30
+    timeoutSeconds: 5
+    failureThreshold: 3
+    successThreshold: 1
+  startup:
+    enabled: false
+    initialDelaySeconds: 0
+    periodSeconds: 30
+    timeoutSeconds: 5
+    failureThreshold: 10
+    successThreshold: 1
+
+# -- Environment variables to inject into the container
+env:
+  - name: TZ
+    value: "Etc/UTC"
+  # - name: PIP_INDEX_URL
+  #   value: "https://pypi.org/simple/"
+  # - name: PATH
+  #   value: "/usr/local/bin:/usr/local/sbin:/usr/local:/usr/bin:/bin"
+
+# -- Additional environment variables from secrets or configmaps
+envFrom: []
+# - secretRef:
+#     name: python-dev-secrets
+# - configMapRef:
+#     name: python-dev-config
+
+# -- Additional volumes to mount (e.g., Docker socket, secrets)
+extraVolumes: []
+# - name: docker-socket
+#   hostPath:
+#     path: /var/run/docker.sock
+#     type: Socket
+
+# -- Additional volume mounts
+extraVolumeMounts: []
+# - name: docker-socket
+#   mountPath: /var/run/docker.sock
+
+# -- Pod-level labels to add
+podLabels: {}
+
+# -- Pod-level annotations
+podAnnotations: {}
+
+# -- Node selector for scheduling
+nodeSelector: {}
+
+# -- Pod tolerations
+tolerations: []
+
+# -- Pod affinity rules
+affinity: {}
+
+# -- Topology spread constraints
+topologySpreadConstraints: []
+# - maxSkew: 1
+#   topologyKey: topology.kubernetes.io/zone
+#   whenUnsatisfiable: DoNotSchedule
+#   labelSelector:
+#     matchLabels:
+#       app.kubernetes.io/name: python-dev-environment
+
+# -- NetworkPolicy configuration (disabled by default)
+networkPolicy:
+  enabled: false
+  ingressRules: []
+  # - from:
+  #     - namespaceSelector:
+  #         matchLabels:
+  #           kubernetes.io/metadata.name: monitoring
+  #     - podSelector:
+  #         matchLabels:
+  #           app.kubernetes.io/name: prometheus
+  #   ports:
+  #     - port: 9090
+  #       protocol: TCP
+  egressRules: []
+  # - to:
+  #     - ipBlock:
+  #         cidr: 10.0.0.0/8
+  #   ports:
+  #     - port: 443
+  #       protocol: TCP
+
+# -- Priority class name for the pod
+priorityClassName: ""
+
+# -- Termination grace period (seconds)
+terminationGracePeriodSeconds: 30
+
+# -- PodDisruptionBudget configuration (disabled by default)
+podDisruptionBudget:
+  enabled: false
+  minAvailable: 1
+  # maxUnavailable: 1

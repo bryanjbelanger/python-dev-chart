@@ -1,0 +1,24 @@
+{{- if .Values.ingress.enabled }}
+The Python development environment has been deployed.
+You can access it at:
+
+  http{{ if .Values.ingress.tls }}s{{ end }}://{{ (index .Values.ingress.hosts 0).host }}
+
+{{- else if .Values.service.enabled }}
+The Python development environment has been deployed.
+To access the pod:
+
+  kubectl exec -n {{ .Release.Namespace }} -it deploy/{{ include "python-dev.fullname" . }} -- /bin/bash
+
+To port-forward to the service (if needed):
+
+  kubectl port-forward -n {{ .Release.Namespace }} svc/{{ include "python-dev.fullname" . }} {{ .Values.service.port }}:{{ .Values.service.targetPort }}
+
+{{- else }}
+The Python development environment has been deployed.
+To access the pod:
+
+  kubectl exec -n {{ .Release.Namespace }} -it deploy/{{ include "python-dev.fullname" . }} -- /bin/bash
+{{- end }}
+
+The workspace is mounted at /workspace with a {{ .Values.storage.size }} persistent volume.
