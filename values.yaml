@@ -35,12 +35,17 @@ resources:
     cpu: "500m"
     memory: 512Mi
 
+# -- Number of old ReplicaSets to retain for rollback
+revisionHistoryLimit: 3
+
 # -- Pod-level security context
 securityContext:
   runAsNonRoot: true
   runAsUser: 1000
   runAsGroup: 1000
   fsGroup: 1000
+  seccompProfile:
+    type: RuntimeDefault
   # -- Additional Linux capabilities to add or drop
   # capabilities:
   #   drop:
